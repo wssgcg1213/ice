@@ -1,6 +1,6 @@
 {
   "root": true,
-  "parser": "babel-eslint",
+  "parser": "@swc/eslint-parser",
   "extends": "eslint-config-airbnb",
   "parserOptions": {
     "ecmaVersion": 6,

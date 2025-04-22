@@ -12,13 +12,13 @@ const matchRequire = require('match-require');
 const mkdirp = require('mkdirp');
 const rimraf = require('rimraf');
 const colors = require('chalk');
-const babel = require('babel-core');
+const swc = require('@swc/core');
 const fs = require('fs');
 const path = require('path');
 const propsSchemaGenerator = require('../dependencies/props-schema-generator');
 const dtsGenerator = require('../dependencies/typescript-definition-generator');
 const ComponentStyleGenerator = require('./utils/ComponentStyleGenerator');
-const getBabelConfig = require('./config/getBabelConfig');
+const getSwcConfig = require('./config/getSwcConfig');
 
 const cwd = process.cwd();
 
@@ -26,7 +26,7 @@ const cwd = process.cwd();
 module.exports = function(args = {}) {
   const pkgPath = path.join(cwd, 'package.json');
   const pkg = JSON.parse(fs.readFileSync(pkgPath));
-  const babelConfig = getBabelConfig(pkg.buildConfig || {});
+  const swcConfig = getSwcConfig(pkg.buildConfig || {});
   gulp.task('clean', () => {
     const lib = path.join(cwd, 'lib');
     return new Promise((resolve) => {
@@ -149,9 +149,9 @@ module.exports = function(args = {}) {
                       throw new Error('依赖检测错误, dep 未添加: ' + dep);
                     }
                   });
-                  const transformed = babel.transformFileSync(
+                  const transformed = swc.transformFileSync(
                     from,
-                    babelConfig,
+                    swcConfig,
                   );
                   fs.writeFileSync(
                     to.replace(/\.jsx/, '.js'),
@@ -160,7 +160,7 @@ module.exports = function(args = {}) {
                   );
                   console.log(
                     `${path.relative(cwd, from)} ${colors.green(
-                      '-babel->',
+                      '-swc->',
                     )} ${path.relative(cwd, to)}`,
                   );
                   // todo .map file

@@ -1,9 +1,9 @@
 const fs = require('fs');
 const path = require('path');
-const babel = require('babel-core');
-const babelPluginImport = interopRequire('babel-plugin-import');
-const babelPluginTransformImport = interopRequire('babel-plugin-transform-es2015-modules-commonjs');
-const babelPluginExport = interopRequire('babel-plugin-transform-export-extensions');
+const swc = require('@swc/core');
+const swcPluginImport = interopRequire('swc-plugin-import');
+const swcPluginTransformImport = interopRequire('swc-plugin-transform-es2015-modules-commonjs');
+const swcPluginExport = interopRequire('swc-plugin-transform-export-extensions');
 
 function interopRequire(id) {
   const module = require(id);
@@ -53,11 +53,37 @@ function analyzeDependenciesImport(str) {
     return result;
   }
 
-  const transformed = babel.transform(importStatements, {
-    plugins: [
-      babelPluginExport,
-      [babelPluginTransformImport, { noInterop: true }],
-      [babelPluginImport, { libraryName: '@icedesign/base' }],
+  const transformed = swc.transformSync(importStatements, {
+    jsc: {
+      parser: {
+        syntax: 'ecmascript',
+        jsx: true,
+        decorators: true,
+        dynamicImport: true,
+      },
+      transform: {
+        react: {
+          runtime: 'automatic',
+        },
+        optimizer: {
+          globals: {
+            vars: {
+              __DEBUG__: 'true',
+            },
+          },
+        },
+      },
+      target: 'es2015',
+    },
+    module: {
+      type: 'commonjs',
+    },
+    sourceMaps: true,
+    minify: false,
+    plugin: [
+      swcPluginExport,
+      [swcPluginTransformImport, { noInterop: true }],
+      [swcPluginImport, { libraryName: '@icedesign/base' }],
     ],
   });
 

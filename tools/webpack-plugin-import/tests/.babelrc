@@ -4,7 +4,8 @@
     [
       "babel-plugin-import",
       {
-        "libraryName": "@icedesign/base"
+        "libraryName": "@icedesign/base",
+        "version": "^1.13.0"
       }
     ]
   ]
